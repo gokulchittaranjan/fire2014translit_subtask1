@@ -10,4 +10,4 @@ subtask1LangIdEval.py
 This script can be used to evaluate a file against the ground truth.
 Syntax:
 
-./subtask1LangIdEval.py <Ground_Truth_File> <Test_Output_File>
+./subtask1LangIdEval.py Ground_Truth_File Test_Output_File
