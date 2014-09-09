@@ -239,6 +239,8 @@ def evaluateResult(gtfile, testfile):
         if np.isnan(p[ii]):
             p[ii] = 0;
         r[ii] = tp[ii]/(tp[ii]+fn[ii]);
+        if np.isnan(r[ii]):
+            r[ii] = 0;
         f[ii] = 2*p[ii]*r[ii]/(p[ii]+r[ii]);
         if np.isnan(f[ii]):
             f[ii] = 0;
