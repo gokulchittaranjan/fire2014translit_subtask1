@@ -159,6 +159,14 @@ def evaluateResult(gtfile, testfile):
         for token in gtRow:
             if not token[1] in labels:
                 labels.append(token[1]);
+    for testRow in testData:
+        for token in testRow:
+            if not token[1] in labels:
+                print "WARNING: Test data contained a label %s that was not in GT." %(token[1]);
+                labels.append(token[1]);
+    #if not "NE_" in labels:
+    #    labels.append("NE_?");
+    
     labels = sorted(labels);
     nLab = len(labels);
     
