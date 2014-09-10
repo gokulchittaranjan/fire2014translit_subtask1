@@ -45,7 +45,9 @@ def readAnnotationFile(filename):
                     tok = tok[:-2];
                 postfix = line[rloc[1]:];
                 if len(postfix)==0:
-                    tokType = "NE_?";
+                    tokType = "NE_GENERIC";
+                elif postfix[0]==" ":
+                    tokType = "NE_GENERIC";
                 elif not postfix[0] in ["P","O","L","A"]:
                     tokType = "NE_?";
                 else:
@@ -185,6 +187,9 @@ def evaluateResult(gtfile, testfile):
             if not testTok[1] in labels:
                 results["message"] = "Test data contains label %s in row %s, which is not defined in GT" %(testTok[1], rcnt);
                 return results;
+            if (gtTok[1]=="NE_GENERIC"):
+                if testTok[1][0:3]=="NE_":
+                    testTok[1] = "NE_GENERIC";
             testIdx = labels.index(testTok[1]);
             confMatrix[testIdx][gtIdx] += 1;
             tot += 1;
