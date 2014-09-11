@@ -9,6 +9,7 @@ import sys;
 import re;
 
 import numpy as np;
+from normalize import check_equivalence;
 
 def readAnnotationFile(filename):
     nere = re.compile("\[[^\]]+\]");
@@ -109,6 +110,9 @@ def printResult(results):
     outs.append("No Mix and NE: Average F-measure\t%2.3f" %(results["f_noMixAndNe"]));
     outs.append("No Mix and NE: Average Accuracy\t%2.3f" %(results["acc_noMixAndNe"]));
     outs.append("No Mix and NE: Tokens\t%d" %(results["tokens_noMixAndNe"]));
+    outs.append("Correct transliterations: %d" %(results["correctTranslits"]));
+    outs.append("No transliterations in GT: %d" %(results["noTranslits"]));
+
     return "\n".join(outs);
 
 def evaluateResult(gtfile, testfile):
@@ -150,7 +154,8 @@ def evaluateResult(gtfile, testfile):
     results["rows"] = -1;
     results["tokens"] = -1;
     results["message"] = "No Results.";
-
+    results["correctTranslits"] = -1;
+    results["noTranslits"] = -1;
     
     if len(gtData)!=len(testData):
         results["message"] = "GT and test files do not have the same number of rows.";
@@ -175,6 +180,10 @@ def evaluateResult(gtfile, testfile):
     rcnt = 0;
     confMatrix = np.zeros([nLab, nLab]);
     tot = 0;
+
+    correctTranslits = 0;
+    noTranslits = 0;
+
     for gtRow, testRow in zip(gtData, testData):
         rcnt += 1;
         if len(gtRow) != len(testRow):
@@ -191,6 +200,10 @@ def evaluateResult(gtfile, testfile):
                 if testTok[1][0:3]=="NE_":
                     testTok[1] = "NE_GENERIC";
             testIdx = labels.index(testTok[1]);
+            if gtTok[2]!="":
+                if gtTok[2]==testTok[2] or check_equivalence(gtTok[2].encode('utf-8'), testTok[2].encode('utf-8')):
+                    correctTranslits += 1;
+                noTranslits += 1;
             confMatrix[testIdx][gtIdx] += 1;
             tot += 1;
     
@@ -314,6 +327,9 @@ def evaluateResult(gtfile, testfile):
     results["f_noMixAndNe"] = sum(f_noMixAndNe)/len(f_noMixAndNe);
     results["acc_noMixAndNe"] = sum(acc_noMixAndNe)/len(acc_noMixAndNe);
     results["tokens_noMixAndNe"] = tokens_noMixAndNe;
+
+    results["correctTranslits"] = correctTranslits;
+    results["noTranslits"] = noTranslits;
     
     results["message"] = "Evaluation successful";
 
