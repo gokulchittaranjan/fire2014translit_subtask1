@@ -164,10 +164,14 @@ def evaluateResult(gtfile, testfile):
     labels = [];
     for gtRow in gtData:
         for token in gtRow:
+            if token[1]=="":
+                continue;
             if not token[1] in labels:
                 labels.append(token[1]);
     for testRow in testData:
         for token in testRow:
+            if token[1]=="":
+                continue;
             if not token[1] in labels:
                 print "WARNING: Test data contained a label %s that was not in GT." %(token[1]);
                 labels.append(token[1]);
@@ -175,6 +179,7 @@ def evaluateResult(gtfile, testfile):
     #    labels.append("NE_?");
     
     labels = sorted(labels);
+    #print labels
     nLab = len(labels);
     
     rcnt = 0;
@@ -191,11 +196,16 @@ def evaluateResult(gtfile, testfile):
             return results;
         
         for gtTok, testTok in zip(gtRow, testRow):
+
+            if gtTok[1]=="":
+                continue;
             
             gtIdx = labels.index(gtTok[1]);
+            
             if not testTok[1] in labels:
                 results["message"] = "Test data contains label %s in row %s, which is not defined in GT" %(testTok[1], rcnt);
-                return results;
+                continue;
+                #return results;
             if (gtTok[1]=="NE_GENERIC"):
                 if testTok[1][0:3]=="NE_":
                     testTok[1] = "NE_GENERIC";
@@ -253,16 +263,24 @@ def evaluateResult(gtfile, testfile):
         fp[ii] = confMatrix[ii].sum() - tp[ii];
         fn[ii] = confMatrix_tr[ii].sum() - tp[ii];
         tn[ii] = tot - (tp[ii]+fp[ii]+fn[ii]);
-        p[ii] = tp[ii]/(tp[ii] + fp[ii]);
-        if np.isnan(p[ii]):
+        if tp[ii]==0 and fp[ii]==0:
             p[ii] = 0;
-        r[ii] = tp[ii]/(tp[ii]+fn[ii]);
-        if np.isnan(r[ii]):
+        else:
+            p[ii] = tp[ii]/(tp[ii] + fp[ii]);
+        if (tp[ii]==0 and fn[ii]==0):
             r[ii] = 0;
-        f[ii] = 2*p[ii]*r[ii]/(p[ii]+r[ii]);
+        else:
+            r[ii] = tp[ii]/(tp[ii]+fn[ii]);
+        if (p[ii]==0 and r[ii]==0):
+            f[ii] = 0;
+        else:
+            f[ii] = 2*p[ii]*r[ii]/(p[ii]+r[ii]);
         if np.isnan(f[ii]):
             f[ii] = 0;
-        acc[ii] = (tp[ii]+tn[ii])/tot;
+        if (tot>0):
+            acc[ii] = (tp[ii]+tn[ii])/tot;
+        else:
+            acc[ii] = 0;
         p_perclass[labels[ii]] = p[ii];
         r_perclass[labels[ii]] = r[ii];
         f_perclass[labels[ii]] = f[ii];
@@ -295,8 +313,10 @@ def evaluateResult(gtfile, testfile):
 
     results["rows"] = rcnt;
     results["tokens"] = tot;
-
-    results["micro_accuracy"] = corr/tot;
+    if tot>0:
+        results["micro_accuracy"] = corr/tot;
+    else:
+        results["micro_accuracy"] = 0;
     results["macro_accuracy"] = acc.mean();
     
     results["p_macro"] = p.mean();
