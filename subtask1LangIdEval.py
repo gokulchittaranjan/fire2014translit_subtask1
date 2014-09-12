@@ -12,9 +12,10 @@ import numpy as np;
 from normalize import check_equivalence;
 
 def readAnnotationFile(filename):
-    nere = re.compile("\[[^\]]+\]");
+    nere = re.compile(r"\[[^\]\\]+\]");
     fid = open(filename,'r');
     data = [];
+    isTokType = re.compile("^[A-Z]{1,3}$");
     for line in fid:
         line = line.replace("\n","").replace("\r","").decode('utf-8').strip();
         #print [line]
@@ -67,6 +68,11 @@ def readAnnotationFile(filename):
                         tokType = temp[1].split("=")[0];
                     else:
                         tokType = temp[1];
+
+                    if re.match(isTokType, tokType)==None:
+                        tokType = "";
+                        tok = f;
+                        translit = "";
                 else:
                     tok = f;
             st += len(f)+1;
@@ -87,29 +93,37 @@ def printResult(results):
     outs.append("Macro Average Recall\t%2.3f" %(results["r_macro"]));
     outs.append("Macro Average F-measure\t%2.3f" %(results["f_macro"]));
     for k in results["p_perClass"].keys():
-        outs.append("Precision for class %s\t%2.3f" %(k, results["p_perClass"][k]));
-        outs.append("Recall for class %s\t%2.3f" %(k, results["r_perClass"][k]));
-        outs.append("F-measure for class %s\t%2.3f" %(k, results["f_perClass"][k]));
-        outs.append("Accuracy for class %s\t%2.3f" %(k, results["acc_perClass"][k]));
-        outs.append("Tokens for class %s\t%d" %(k, results["tokens_perClass"][k]));
+        outs.append("\nClass %s\n=========" %(k));
+        
+        outs.append("Precision\t%2.3f" %(results["p_perClass"][k]));
+        outs.append("Recall\t%2.3f" %(results["r_perClass"][k]));
+        outs.append("F-measure\t%2.3f" %(results["f_perClass"][k]));
+        outs.append("Accuracy\t%2.3f" %(results["acc_perClass"][k]));
+        outs.append("Tokens\t%d" %(results["tokens_perClass"][k]));
+    outs.append("\nNo Mix\n=======");
+    outs.append("Macro Average Precision\t%2.3f" %(results["p_noMix"]));
+    outs.append("Macro Average Recall\t%2.3f" %(results["r_noMix"]));
+    outs.append("Macro Average F-measure\t%2.3f" %(results["f_noMix"]));
+    #outs.append("No Mix: Macro Average Accuracy\t%2.3f" %(results["macro_acc_noMix"]));
+    outs.append("Micro Average Accuracy\t%2.3f" %(results["micro_acc_noMix"]));
+    outs.append("Tokens\t%d" %(results["tokens_noMix"]));
 
-    outs.append("No Mix: Macro Average Precision\t%2.3f" %(results["p_noMix"]));
-    outs.append("No Mix: Average Recall\t%2.3f" %(results["r_noMix"]));
-    outs.append("No Mix: Average F-measure\t%2.3f" %(results["f_noMix"]));
-    outs.append("No Mix: Average Accuracy\t%2.3f" %(results["acc_noMix"]));
-    outs.append("No Mix: Tokens\t%d" %(results["tokens_noMix"]));
+    outs.append("\nNo NE\n=======");
+    outs.append("Macro Average Precision\t%2.3f" %(results["p_noNe"]));
+    outs.append("Macro Average Recall\t%2.3f" %(results["r_noNe"]));
+    outs.append("Macro Average F-measure\t%2.3f" %(results["f_noNe"]));
+    #outs.append("No NE: Macro Average Accuracy\t%2.3f" %(results["macro_acc_noNe"]));
+    outs.append(" Micro Average Accuracy\t%2.3f" %(results["micro_acc_noNe"]));
+    outs.append("Tokens\t%d" %(results["tokens_noNe"]));
 
-    outs.append("No NE: Macro Average Precision\t%2.3f" %(results["p_noNe"]));
-    outs.append("No NE: Average Recall\t%2.3f" %(results["r_noNe"]));
-    outs.append("No NE: Average F-measure\t%2.3f" %(results["f_noNe"]));
-    outs.append("No NE: Average Accuracy\t%2.3f" %(results["acc_noNe"]));
-    outs.append("No NE: Tokens\t%d" %(results["tokens_noNe"]));
-
-    outs.append("No Mix and NE: Macro Average Precision\t%2.3f" %(results["p_noMixAndNe"]));
-    outs.append("No Mix and NE: Average Recall\t%2.3f" %(results["r_noMixAndNe"]));
-    outs.append("No Mix and NE: Average F-measure\t%2.3f" %(results["f_noMixAndNe"]));
-    outs.append("No Mix and NE: Average Accuracy\t%2.3f" %(results["acc_noMixAndNe"]));
-    outs.append("No Mix and NE: Tokens\t%d" %(results["tokens_noMixAndNe"]));
+    outs.append("\nNo Mix and NE\n==========")
+    outs.append("Macro Average Precision\t%2.3f" %(results["p_noMixAndNe"]));
+    outs.append("Macro Average Recall\t%2.3f" %(results["r_noMixAndNe"]));
+    outs.append("Macro Average F-measure\t%2.3f" %(results["f_noMixAndNe"]));
+    #outs.append("No Mix and NE: Macro Average Accuracy\t%2.3f" %(results["macro_acc_noMixAndNe"]));
+    outs.append("Micro Average Accuracy\t%2.3f" %(results["micro_acc_noMixAndNe"]));
+    outs.append("Tokens\t%d" %(results["tokens_noMixAndNe"]));
+    outs.append("\nTransliterations\n===============");
     outs.append("Correct transliterations: %d" %(results["correctTranslits"]));
     outs.append("No transliterations in GT: %d" %(results["noTranslits"]));
 
@@ -141,22 +155,25 @@ def evaluateResult(gtfile, testfile):
     results["p_noNe"] = -1;
     results["r_noNe"] = -1;
     results["f_noNe"] = -1;
-    results["acc_noNe"] = -1;
+    results["macro_acc_noNe"] = -1;
     results["tokens_noNe"] = -1;
+    results["micro_acc_noNe"] = -1;
 
 
     results["p_noMixAndNe"] = -1;
     results["r_noMixAndNe"] = -1;
     results["f_noMixAndNe"] = -1;
-    results["acc_noMixAndNe"] = -1;
+    results["macro_acc_noMixAndNe"] = -1;
     results["tokens_noMixAndNe"] = -1;
-    
+    results["micro_acc_noMixAndNe"] = -1;
+
     results["rows"] = -1;
     results["tokens"] = -1;
     results["message"] = "No Results.";
     results["correctTranslits"] = -1;
     results["noTranslits"] = -1;
-    
+
+
     if len(gtData)!=len(testData):
         results["message"] = "GT and test files do not have the same number of rows.";
         return results;
@@ -193,6 +210,10 @@ def evaluateResult(gtfile, testfile):
         rcnt += 1;
         if len(gtRow) != len(testRow):
             results["message"] = "Row %s does not match." %(rcnt);
+            print "GT: "
+            print gtRow
+            print "Test: "
+            print testRow
             return results;
         
         for gtTok, testTok in zip(gtRow, testRow):
@@ -242,18 +263,21 @@ def evaluateResult(gtfile, testfile):
     f_noMix = [];
     acc_noMix = [];
     tokens_noMix = 0.0;
+    corr_noMix = 0.0;
 
     p_noNe = [];
     r_noNe = [];
     f_noNe = [];
     acc_noNe = [];
     tokens_noNe = 0.0;
+    corr_noNe = 0.0;
 
     p_noMixAndNe = [];
     r_noMixAndNe = [];
     f_noMixAndNe = [];
     acc_noMixAndNe = [];
     tokens_noMixAndNe = 0.0;
+    corr_noMixAndNe = 0.0;
 
 
     for ii in xrange(0, nLab):
@@ -262,7 +286,7 @@ def evaluateResult(gtfile, testfile):
         tp[ii] = confMatrix[ii][ii];
         fp[ii] = confMatrix[ii].sum() - tp[ii];
         fn[ii] = confMatrix_tr[ii].sum() - tp[ii];
-        tn[ii] = tot - (tp[ii]+fp[ii]+fn[ii]);
+        tn[ii] = confMatrix.sum() - (tp[ii]+fp[ii]+fn[ii]);
         if tp[ii]==0 and fp[ii]==0:
             p[ii] = 0;
         else:
@@ -298,18 +322,21 @@ def evaluateResult(gtfile, testfile):
             f_noNe.append(f[ii]);
             acc_noNe.append(acc[ii]);
             tokens_noNe += tp[ii] + fn[ii];
+            corr_noNe += confMatrix[ii][ii];
         if not isMix:
             p_noMix.append(p[ii]);
             r_noMix.append(r[ii]);
             f_noMix.append(f[ii]);
             acc_noMix.append(acc[ii]);
             tokens_noMix += tp[ii] + fn[ii];
+            corr_noMix += confMatrix[ii][ii];
         if (not isNE) and (not isMix):
             p_noMixAndNe.append(p[ii]);
             r_noMixAndNe.append(r[ii]);
             f_noMixAndNe.append(f[ii]);
             acc_noMixAndNe.append(acc[ii]);
             tokens_noMixAndNe += tp[ii] + fn[ii];
+            corr_noMixAndNe += confMatrix[ii][ii];
 
     results["rows"] = rcnt;
     results["tokens"] = tot;
@@ -332,21 +359,23 @@ def evaluateResult(gtfile, testfile):
     results["p_noMix"] = sum(p_noMix)/len(p_noMix);
     results["r_noMix"] = sum(r_noMix)/len(r_noMix);
     results["f_noMix"] = sum(f_noMix)/len(f_noMix);
-    results["acc_noMix"] = sum(acc_noMix)/len(acc_noMix);
+    results["macro_acc_noMix"] = sum(acc_noMix)/len(acc_noMix);
     results["tokens_noMix"] = tokens_noMix;
+    results["micro_acc_noMix"] = corr_noMix/tokens_noMix;
 
     results["p_noNe"] = sum(p_noNe)/len(p_noNe);
     results["r_noNe"] = sum(r_noNe)/len(r_noNe);
     results["f_noNe"] = sum(f_noNe)/len(f_noNe);
-    results["acc_noNe"] = sum(acc_noNe)/len(acc_noNe);
+    results["macro_acc_noNe"] = sum(acc_noNe)/len(acc_noNe);
     results["tokens_noNe"] = tokens_noNe;
-
+    results["micro_acc_noNe"] = corr_noNe/tokens_noNe;
 
     results["p_noMixAndNe"] = sum(p_noMixAndNe)/len(p_noMixAndNe);
     results["r_noMixAndNe"] = sum(r_noMixAndNe)/len(r_noMixAndNe);
     results["f_noMixAndNe"] = sum(f_noMixAndNe)/len(f_noMixAndNe);
-    results["acc_noMixAndNe"] = sum(acc_noMixAndNe)/len(acc_noMixAndNe);
+    results["macro_acc_noMixAndNe"] = sum(acc_noMixAndNe)/len(acc_noMixAndNe);
     results["tokens_noMixAndNe"] = tokens_noMixAndNe;
+    results["micro_acc_noMixAndNe"] = corr_noMixAndNe/tokens_noMixAndNe;
 
     results["correctTranslits"] = correctTranslits;
     results["noTranslits"] = noTranslits;
