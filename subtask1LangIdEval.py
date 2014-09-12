@@ -98,7 +98,7 @@ def printResult(results):
         outs.append("Precision\t%2.3f" %(results["p_perClass"][k]));
         outs.append("Recall\t%2.3f" %(results["r_perClass"][k]));
         outs.append("F-measure\t%2.3f" %(results["f_perClass"][k]));
-        outs.append("Accuracy\t%2.3f" %(results["acc_perClass"][k]));
+        #outs.append("Accuracy\t%2.3f" %(results["acc_perClass"][k]));
         outs.append("Tokens\t%d" %(results["tokens_perClass"][k]));
     outs.append("\nNo Mix\n=======");
     outs.append("Macro Average Precision\t%2.3f" %(results["p_noMix"]));
