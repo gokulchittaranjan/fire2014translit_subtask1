@@ -6,80 +6,10 @@
 # Gokul Chittaranjan, gokulchittaranjan@gmail.com
 
 import sys;
-import re;
 
 import numpy as np;
 from normalize import check_equivalence;
-
-def readAnnotationFile(filename):
-    nere = re.compile(r"\[[^\]\\]+\]");
-    fid = open(filename,'r');
-    data = [];
-    isTokType = re.compile("^[A-Z]{1,3}$");
-    for line in fid:
-        line = line.replace("\n","").replace("\r","").decode('utf-8').strip();
-        #print [line]
-        if line=="":
-            continue;
-        neLocs = [];
-        it = re.finditer(nere, line);
-        for match in it:
-            neLocs.append([match.start(), match.end()]);
-        fields = line.split(" ");
-        st = 0;
-        entry = [];
-        for f in fields:
-            inNe = False;
-            rloc = [];
-            for loc in neLocs:
-                if st>=loc[0] and st<=loc[1]:
-                    rloc = loc;
-                    inNe = True;
-                    break;
-            tok = "";
-            tokType = "";
-            translit = "";
-            if inNe:
-                tok = f;
-                if rloc[0]==st:
-                    tok = tok[1:];
-                if rloc[1]==st+len(f)-1:
-                    tok = tok[:-2];
-                postfix = line[rloc[1]:];
-                if len(postfix)==0:
-                    tokType = "NE_GENERIC";
-                elif postfix[0]==" ":
-                    tokType = "NE_GENERIC";
-                elif not postfix[0] in ["P","O","L","A"]:
-                    tokType = "NE_?";
-                else:
-                    tokType = "NE_%s" %(postfix[0]);
-                if len(postfix)>1:
-                    temp = postfix.split(" "); # translit of multi-token ne not handled here...
-                    if len(temp)>0:
-                        if "=" in temp[0]:
-                            translit = temp.split("=")[1];
-            else:
-                if "\\" in f:
-                    temp = f.split("\\");
-                    tok = temp[0];
-                    if "=" in temp[1]:
-                        translit = temp[1].split("=")[1];
-                        tokType = temp[1].split("=")[0];
-                    else:
-                        tokType = temp[1];
-
-                    if re.match(isTokType, tokType)==None:
-                        tokType = "";
-                        tok = f;
-                        translit = "";
-                else:
-                    tok = f;
-            st += len(f)+1;
-            entry.append([tok, tokType, translit]);
-        data.append(entry);
-    return data;
-    
+from utils import readAnnotationFile;
 
 def printResult(results):
     
@@ -175,7 +105,7 @@ def evaluateResult(gtfile, testfile):
 
 
     if len(gtData)!=len(testData):
-        results["message"] = "GT and test files do not have the same number of rows.";
+        results["message"] += "GT and test files do not have the same number of rows.\n";
         return results;
 
     labels = [];
@@ -190,12 +120,13 @@ def evaluateResult(gtfile, testfile):
             if token[1]=="":
                 continue;
             if not token[1] in labels:
-                print "WARNING: Test data contained a label %s that was not in GT." %(token[1]);
+                results["message"] += "WARNING: Test data contained a label %s that was not in GT.\n" %(token[1]);
                 labels.append(token[1]);
     #if not "NE_" in labels:
     #    labels.append("NE_?");
     
     labels = sorted(labels);
+    labels.append("OTHER/INVALID");
     #print labels
     nLab = len(labels);
     
@@ -217,7 +148,7 @@ def evaluateResult(gtfile, testfile):
             return results;
         
         for gtTok, testTok in zip(gtRow, testRow):
-
+            tot += 1;
             if gtTok[1]=="":
                 continue;
             
@@ -225,6 +156,7 @@ def evaluateResult(gtfile, testfile):
             
             if not testTok[1] in labels:
                 results["message"] = "Test data contains label %s in row %s, which is not defined in GT" %(testTok[1], rcnt);
+                confMatrix[nLab-1][gtIdx] += 1;
                 continue;
                 #return results;
             if (gtTok[1]=="NE_GENERIC"):
@@ -236,7 +168,7 @@ def evaluateResult(gtfile, testfile):
                     correctTranslits += 1;
                 noTranslits += 1;
             confMatrix[testIdx][gtIdx] += 1;
-            tot += 1;
+           # tot += 1;
     
     confMatrix_tr = confMatrix.transpose();
     
@@ -361,21 +293,30 @@ def evaluateResult(gtfile, testfile):
     results["f_noMix"] = sum(f_noMix)/len(f_noMix);
     results["macro_acc_noMix"] = sum(acc_noMix)/len(acc_noMix);
     results["tokens_noMix"] = tokens_noMix;
-    results["micro_acc_noMix"] = corr_noMix/tokens_noMix;
+    if (tokens_noMix):
+        results["micro_acc_noMix"] = corr_noMix/tokens_noMix;
+    else:
+        results["micro_acc_noMix"] = 0;
 
     results["p_noNe"] = sum(p_noNe)/len(p_noNe);
     results["r_noNe"] = sum(r_noNe)/len(r_noNe);
     results["f_noNe"] = sum(f_noNe)/len(f_noNe);
     results["macro_acc_noNe"] = sum(acc_noNe)/len(acc_noNe);
     results["tokens_noNe"] = tokens_noNe;
-    results["micro_acc_noNe"] = corr_noNe/tokens_noNe;
+    if (tokens_noNe>0):
+        results["micro_acc_noNe"] = corr_noNe/tokens_noNe;
+    else:
+        results["micro_acc_noNe"] = 0;
 
     results["p_noMixAndNe"] = sum(p_noMixAndNe)/len(p_noMixAndNe);
     results["r_noMixAndNe"] = sum(r_noMixAndNe)/len(r_noMixAndNe);
     results["f_noMixAndNe"] = sum(f_noMixAndNe)/len(f_noMixAndNe);
     results["macro_acc_noMixAndNe"] = sum(acc_noMixAndNe)/len(acc_noMixAndNe);
     results["tokens_noMixAndNe"] = tokens_noMixAndNe;
-    results["micro_acc_noMixAndNe"] = corr_noMixAndNe/tokens_noMixAndNe;
+    if (tokens_noMixAndNe):
+        results["micro_acc_noMixAndNe"] = corr_noMixAndNe/tokens_noMixAndNe;
+    else:
+        results["micro_acc_noMixAndNe"] = 0;
 
     results["correctTranslits"] = correctTranslits;
     results["noTranslits"] = noTranslits;
