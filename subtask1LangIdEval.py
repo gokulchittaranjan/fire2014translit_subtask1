@@ -81,6 +81,7 @@ def evaluateResult(gtfile, testfile):
     results["f_noMix"] = -1;
     results["acc_noMix"] = -1;
     results["tokens_noMix"] = -1;
+    results["micro_acc_noMix"] = -1;
 
     results["p_noNe"] = -1;
     results["r_noNe"] = -1;
