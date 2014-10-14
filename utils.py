@@ -102,7 +102,8 @@ def readAnnotationFile(filename):
                     tokType = "NE_%s" %(tokType);
                 if tokType=="N":
                     tokType = "NE_?";
-
+            if tok=="":
+                continue;
             entry.append([tok, tokType, translit]);
         data.append(entry);
     return data;
