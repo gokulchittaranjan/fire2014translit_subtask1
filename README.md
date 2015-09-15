@@ -1,13 +1,19 @@
 fire2014translit_subtask1
 =========================
 
-Evaluation scripts for FIRE 2014 Shared Task on Transliterated search, subtask-1.
+Evaluation scripts for FIRE 2015 Shared Task on Transliterated search, subtask-1.
 
 
-subtask1LangIdEval.py
+2015_subtask1Eval.py
 ---------------------
 
-This script can be used to evaluate a file against the ground truth.
-Syntax:
+Usage: 2015_subtask1Eval.py [options]
 
-./subtask1LangIdEval.py Ground_Truth_File Test_Output_File
+Options:
+  -h, --help            show this help message and exit
+  -g GTDIR, --gt-dir=GTDIR
+                        Directory contining labelled data
+  -s SUBDIR, --sub-dir=SUBDIR
+                        Directory containing the submissions
+  -o OUTPUTFILE, --output-file=OUTPUTFILE
+                        Output file to write to...

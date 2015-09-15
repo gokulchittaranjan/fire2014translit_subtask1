@@ -1,0 +1,62 @@
+<data>
+	<utterance id="1">	
+		ml ml hi
+	</utterance>
+	<utterance id="2">
+		gu en gu en gu
+	</utterance>
+	<utterance id="3">
+		bn en en en
+	</utterance>
+	<utterance id="4">
+		gu gu gu
+	</utterance>
+	<utterance id="5">
+		hi hi hi hi en hi en hi hi X X X
+	</utterance>
+	<utterance id="6">
+		gu gu gu gu gu bn bn bn bn bn X
+	</utterance>
+	<utterance id="7">
+		bn bn bn bn X 
+	</utterance>
+	<utterance id="8">
+		bn bn bn en en bn bn bn bn en en en
+	</utterance>
+	<utterance id="9">
+		bn bn  bn en en en
+	</utterance>
+	<utterance id="10">
+		bn en en bn
+	</utterance>
+	<utterance id="11">
+		gu gu gu gu
+	</utterance>
+	<utterance id="12">
+		en en en en en NE_P en en X en en X hi hi hi hi hi hi hi 
+	</utterance>
+	<utterance id="13">
+		en hi hi hi hi X
+	</utterance>
+	<utterance id="14">
+		gu gu gu gu gu gu gu
+	</utterance>
+	<utterance id="15">
+		en en en hi en
+	</utterance>
+	<utterance id="16">
+		hi hi hi en en
+	</utterance>
+	<utterance id="17">
+		gu gu gu gu
+	</utterance>
+	<utterance id="18">
+		en en en ml ml ml ml ml ml X
+	</utterance>
+	<utterance id="19">
+		ml NE_L X  ml ml ml ml ml X ml ml ml X X X X MIX ml MIX MIX ml MIX X ml NE_L X 
+	</utterance>
+	<utterance id="20">
+		hi hi hi hi en hi hi hi hi hi hi hi X X
+	</utterance>
+</data>
