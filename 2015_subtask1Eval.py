@@ -1,5 +1,24 @@
 #!/usr/bin/python
 
+"""
+
+Evaluation Script for Subtask1 in FIRE 2015.
+
+Usage: 2015_subtask1Eval.py [options]
+
+Options:
+  -h, --help            show this help message and exit
+  -g GTDIR, --gt-dir=GTDIR
+                        Directory contining labelled data
+  -s SUBDIR, --sub-dir=SUBDIR
+                        Directory containing the submissions
+  -o OUTPUTFILE, --output-file=OUTPUTFILE
+                        Output file to write to...
+
+Gokul Chittaranjan, gokulchittaranjan@gmail.com
+
+"""
+
 from optparse import OptionParser;
 import glob;
 import os;
