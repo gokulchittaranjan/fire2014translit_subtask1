@@ -148,7 +148,7 @@ class FIRE2015:
 		stats["utterancesAccuracy"] = utterancesCorrect*100/(utterances + 1e-10);
 		stats["tokens"] = tokens;
 		stats["tokensCorrect"] = tokensCorrect;
-		stats["tokensAccuracy"] = tokens*100/(tokensCorrect + 1e-10);
+		stats["tokensAccuracy"] = tokensCorrect*100/(tokens + 1e-10);
 
 		for ii in xrange(0, uniqToks):
 			stats["precision %s" %(toksLookup[ii])] = precisionByClass[ii][0];
