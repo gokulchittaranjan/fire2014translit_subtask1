@@ -163,7 +163,7 @@ class Logging:
 
 	@staticmethod
 	def defaults():
-		logging.basicConfig(level=logging.DEBUG, format='%(name)-12s: %(asctime)s - %(levelname)s - %(message)s', datefmt='%m/%d/%Y %I:%M:%s %p');	
+		logging.basicConfig(level=logging.DEBUG, format='%(name)-12s: %(asctime)s - %(levelname)s - %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p');	
 		return logging.getLogger("FIRE2015.root");
 
 	@staticmethod
