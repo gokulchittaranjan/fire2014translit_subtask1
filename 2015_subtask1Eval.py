@@ -106,7 +106,11 @@ class FIRE2015:
 		#toksInGt["NE*"] = cnt + 1;
 		#toksLookup[cnt+1] = "NE*";
 
-		self.logger.debug("Tokens in GT %s" %(",".join(toksInGt.keys())))
+		orderedToks = [];
+		for ii in xrange(0, len(toksLookup)):
+			orderedToks.append(toksLookup[ii]);
+
+		self.logger.debug("Tokens in GT %s" %(",".join(orderedToks)))
 
 		uniqToks = len(toksInGt);
 
