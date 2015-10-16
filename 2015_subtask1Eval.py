@@ -152,8 +152,8 @@ class FIRE2015:
 					self.logger.debug("Submission utterance %s has token %s that is not in GT" %(k, subToken));
 					subToken = "Others";
 				confusionMatrix[toksInGt[gtToken], toksInGt[subToken]] += 1;
-				if gtToken[0:3]=="NE_":
-					if subToken[0:3]=="NE_":
+				if gtToken[0:2]=="NE":
+					if subToken[0:2]=="NE":
 						correctNEs += 1;
 					NEs += 1;
 				if gtToken[0:3]=="MIX":
