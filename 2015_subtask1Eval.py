@@ -160,7 +160,9 @@ class FIRE2015:
 					if subToken[0:3]=="MIX":
 						correctMIXes += 1;
 					MIXes += 1;
-
+				if gtToken=="NE":
+					if subToken[0:2]=="NE":
+						subToken="NE";
 		self.logger.debug(confusionMatrix);
 		
 		precisionByClass, recallByClass, fmeasureByClass = processConfusionMatrix(confusionMatrix, uniqToks);
